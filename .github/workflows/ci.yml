@@ -4,15 +4,34 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: tax-intelligence-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tax_intelligence?schema=public
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: tax_intelligence
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d tax_intelligence"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +39,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 10.0.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,8 +55,14 @@ jobs:
       - name: Generate Prisma client
         run: pnpm --filter @tax-intelligence/api db:generate
 
+      - name: Apply database migrations
+        run: pnpm --filter @tax-intelligence/api db:migrate:deploy
+
       - name: API typecheck
         run: pnpm --filter @tax-intelligence/api typecheck
+
+      - name: Web typecheck
+        run: pnpm --filter @tax-intelligence/web typecheck
 
       - name: API tests
         run: pnpm --filter @tax-intelligence/api test
