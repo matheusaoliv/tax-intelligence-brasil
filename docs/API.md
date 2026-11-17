@@ -25,7 +25,7 @@ A senha deve ter no mínimo 12 caracteres. Login e cadastro têm limite de cinco
 - `POST /companies`: cadastra razão social e CPF/CNPJ.
 - `GET /companies`: lista empresas da organização.
 - `GET /companies/:id`: consulta uma empresa da organização.
-- CPF/CNPJ é cifrado com AES-256-GCM; a deduplicação usa HMAC-SHA-256 com chave derivada independente. A API retorna apenas os últimos quatro dígitos.
+- CPF e CNPJ são validados por dígitos verificadores, incluindo o novo CNPJ alfanumérico de 12 caracteres alfanuméricos + 2 dígitos. A validação matemática não consulta nem confirma situação cadastral na Receita Federal. CPF/CNPJ é cifrado com AES-256-GCM; a deduplicação usa HMAC-SHA-256 com chave derivada independente. A API retorna apenas os últimos quatro dígitos.
 
 ## Cálculos
 - `POST /calculations`: executa Regime Regular ou Simples Nacional.
