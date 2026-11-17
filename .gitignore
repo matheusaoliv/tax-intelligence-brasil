@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+.pnpm-store/
+.yarn/
+
+# builds
+.next/
+dist/
+build/
+coverage/
+out/
+
+# environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# logs and local data
+*.log
+.DS_Store
+*.sqlite
+*.db
+
+# tooling
+.turbo/
+.vercel/
+.idea/
+.vscode/*
+!.vscode/extensions.json
