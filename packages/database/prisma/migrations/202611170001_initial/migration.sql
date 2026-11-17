@@ -39,12 +39,14 @@ CREATE TABLE "Company" (
   "id" UUID NOT NULL,
   "organizationId" UUID NOT NULL,
   "legalName" TEXT NOT NULL,
-  "taxIdentifier" TEXT NOT NULL,
+  "taxIdentifierEncrypted" TEXT NOT NULL,
+  "taxIdentifierHash" TEXT NOT NULL,
+  "taxIdentifierSuffix" TEXT NOT NULL,
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP(3) NOT NULL,
   CONSTRAINT "Company_pkey" PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX "Company_organizationId_taxIdentifier_key" ON "Company"("organizationId", "taxIdentifier");
+CREATE UNIQUE INDEX "Company_organizationId_taxIdentifierHash_key" ON "Company"("organizationId", "taxIdentifierHash");
 CREATE UNIQUE INDEX "Company_id_organizationId_key" ON "Company"("id", "organizationId");
 CREATE INDEX "Company_organizationId_idx" ON "Company"("organizationId");
 
