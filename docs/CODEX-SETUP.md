@@ -1,113 +1,122 @@
 # Configuração do Codex para o TAX INTELLIGENCE BRASIL
 
-Este guia configura o OpenAI Codex como ambiente de desenvolvimento do projeto. As skills complementam o `AGENTS.md`; não substituem testes, revisão humana, documentação oficial nem validação dos motores fiscais.
+Este guia configura o Codex e documenta as extensões recomendadas. As skills do repositório são carregadas pelo Codex quando o projeto é aberto localmente; plugins externos precisam ser instalados no ambiente Codex do usuário.
 
-## 1. Preparação
+## 1. O que já está versionado neste repositório
 
-1. Instale/atualize o Codex (aplicativo ou CLI) e o Git.
-2. Clone o repositório e abra a pasta raiz no Codex:
-   `git clone https://github.com/matheusaoliv/tax-intelligence-brasil.git`
-3. Confirme que o Codex está na raiz do repositório e que leu `AGENTS.md`, `README.md`, `DESIGN.md` e os documentos em `docs/`.
-4. Antes de instalar plugins de terceiros, confira seus repositórios, licenças, permissões e dependências.
+- `AGENTS.md`: regras gerais de engenharia, segurança e qualidade.
+- `.agents/skills/tax-engine-integrity/SKILL.md`: integridade dos motores fiscais.
+- `.agents/skills/multi-tenant-security-review/SKILL.md`: isolamento e segurança multiempresa.
+- `.agents/skills/fiscal-adapter-contract/SKILL.md`: contratos dos adapters fiscais.
+- `.agents/skills/engineering-tdd/SKILL.md`: TDD, depuração e verificação.
 
-## 2. Superpowers: fluxo de engenharia
+O Codex procura skills de repositório em `.agents/skills/`. Ao abrir a raiz do repositório, confirme a descoberta usando `/skills`. Skills são carregadas sob demanda, portanto a presença no diretório não significa que todas estejam sempre ativas.
 
-Superpowers fornece workflows para brainstorming, planejamento, TDD, depuração sistemática e verificação antes de concluir.
+## 2. Superpowers
 
-**Codex Desktop:** abra Plugins, procure **Superpowers** na seção de ferramentas de programação e instale.
+Superpowers reúne fluxos de brainstorming, planejamento, TDD, depuração sistemática e verificação antes de concluir.
 
-**Codex CLI:** execute `/plugins`, procure **Superpowers** e siga a instalação apresentada pelo Codex.
+1. Abra o Codex Desktop ou Codex CLI.
+2. Abra o navegador de plugins com `/plugins`.
+3. Procure **Superpowers**, confira o editor e a origem e instale.
+4. Inicie uma nova sessão e confira as skills com `/skills`.
 
-Após instalar, reinicie/abra uma nova sessão e confirme que as skills aparecem com `/skills`. Use explicitamente os workflows relevantes, por exemplo brainstorming, writing-plans, test-driven-development, systematic-debugging e verification-before-completion.
+Repositório e instruções: https://github.com/obra/superpowers
 
-Fonte: https://github.com/obra/superpowers
+## 3. Trail of Bits
 
-## 3. Trail of Bits: segurança e auditoria
-
-Adicione o marketplace:
+O marketplace oficial do projeto documenta a compatibilidade com Codex. Adicione a fonte e confira o catálogo antes de instalar:
 
 ```bash
 codex plugin marketplace add trailofbits/skills
-codex plugin list
+codex plugin marketplace list
+codex plugin list --available --json
 ```
 
-Instale os plugins recomendados individualmente:
+Instale os plugins relevantes, usando os nomes publicados pelo marketplace:
 
 ```bash
+codex plugin add audit-context-building@trailofbits
 codex plugin add differential-review@trailofbits
-codex plugin add supply-chain-risk-auditor@trailofbits
-codex plugin add static-analysis@trailofbits
-codex plugin add post-patch-validation@trailofbits
 codex plugin add dimensional-analysis@trailofbits
+codex plugin add static-analysis@trailofbits
+codex plugin add supply-chain-risk-auditor@trailofbits
+codex plugin add post-patch-validation@trailofbits
+codex plugin add property-based-testing@trailofbits
+codex plugin add spec-to-code-compliance@trailofbits
 ```
 
-Uso previsto:
-- `differential-review`: revisar alterações e seu impacto.
-- `supply-chain-risk-auditor`: examinar dependências e riscos de cadeia de suprimentos.
-- `static-analysis`: apoiar análise estática de segurança.
-- `post-patch-validation`: validar correções de segurança e regressões.
-- `dimensional-analysis`: revisar cálculos com unidades, escalas e conversões, especialmente valores monetários, percentuais e bases decimais.
+Se algum nome não aparecer na lista `available`, não force a instalação: consulte o catálogo atualizado e instale apenas os itens efetivamente publicados.
 
-Se um nome não estiver disponível na versão atual do marketplace, consulte `codex plugin list` e a documentação do marketplace. Não substitua silenciosamente por um plugin de nome parecido.
+Uso no projeto:
+- `audit-context-building`: compreender a base antes de procurar defeitos.
+- `differential-review`: revisão focada nas mudanças.
+- `dimensional-analysis`: detectar inconsistências de unidades e fórmulas.
+- `static-analysis`: apoiar análise estática.
+- `supply-chain-risk-auditor`: examinar dependências e riscos da cadeia de suprimentos.
+- `post-patch-validation`: procurar variantes e regressões após correções.
+- `property-based-testing`: criar e revisar testes baseados em propriedades.
+- `spec-to-code-compliance`: verificar aderência do código à especificação.
 
-Fonte: https://github.com/trailofbits/skills
+Repositório e catálogo: https://github.com/trailofbits/skills
 
-## 4. Skills nativas e skills do repositório
+**Licença:** o repositório Trail of Bits informa licença CC-BY-SA-4.0. Revise os termos antes de copiar, modificar ou redistribuir conteúdos dessas skills. A instalação de um plugin não transfere a licença do código do seu produto.
 
-O Codex reconhece skills em `.agents/skills/` no repositório e também skills pessoais em `~/.agents/skills/`. Uma skill contém um `SKILL.md` com frontmatter `name` e `description`. O Codex pode ativá-la por correspondência com a tarefa ou por chamada explícita usando `$nome-da-skill`.
+## 4. Skills do projeto
 
-As skills específicas deste projeto ficam versionadas em `.agents/skills/`, para que todos os colaboradores usem as mesmas regras. Skills globais ficam na pasta pessoal e não devem conter regras exclusivas do TAX INTELLIGENCE BRASIL.
+As skills em `.agents/skills/` são específicas do TAX INTELLIGENCE BRASIL e devem permanecer versionadas no Git. Não as copie para uma pasta pessoal, a menos que queira reutilizá-las em outros projetos.
 
-Verifique as skills reconhecidas com:
+Para invocar explicitamente:
+- `$tax-engine-integrity`
+- `$multi-tenant-security-review`
+- `$fiscal-adapter-contract`
+- `$engineering-tdd`
 
-```text
-/skills
-```
+Para conferir as skills descobertas, use `/skills`. Se uma skill nova não aparecer, reinicie a sessão do Codex e confira se a pasta aberta é a raiz correta do repositório.
 
-Se alguma skill recém-instalada não aparecer, reinicie o Codex.
-
-Documentação oficial: https://learn.chatgpt.com/docs/build-skills
+Documentação oficial de skills: https://learn.chatgpt.com/docs/build-skills
 
 ## 5. Regras obrigatórias para tarefas fiscais
 
-Ao trabalhar em qualquer cálculo, adapter ou integração fiscal:
-
-1. Identifique o repositório upstream, versão, commit/tag e licença aplicável.
-2. Preserve o comportamento do motor oficial adotado. Não altere regras fiscais por inferência nem crie uma segunda implementação silenciosa.
-3. Registre entrada original, saída original, versão do motor, parâmetros, data/hora e correlação da execução, respeitando minimização e proteção de dados.
-4. Use fixtures oficiais ou casos de referência rastreáveis. Compare resultados com o motor upstream.
+1. Identifique repositório upstream, versão, commit/tag, licença e testes publicados.
+2. Preserve o comportamento do motor upstream selecionado. Não altere regras fiscais por inferência.
+3. Registre entrada e saída originais, versão do motor, parâmetros, timestamp e correlação, com controles de acesso e retenção.
+4. Use fixtures oficiais ou casos de referência rastreáveis e compare resultados com o upstream.
 5. Teste limites, arredondamento, precisão decimal, percentuais, datas, códigos e campos opcionais.
-6. Diferencie claramente erro de validação, indisponibilidade do motor e resultado fiscal.
-7. Não use IA generativa para calcular, corrigir ou inventar valores tributários. A IA pode explicar resultados com base em fontes versionadas e deve declarar quando não houver evidência suficiente.
-8. Nunca afirme conformidade, homologação ou equivalência sem evidências reproduzíveis e revisão humana.
+6. Diferencie erro de validação, indisponibilidade do motor e resultado fiscal válido.
+7. Não use IA generativa para calcular, corrigir ou inventar valores tributários. A IA pode explicar resultados com fontes versionadas e deve se abster quando faltar evidência.
+8. Não afirme conformidade, homologação ou equivalência sem evidências reproduzíveis e revisão humana.
 
 ## 6. Qualidade antes de concluir
 
-Para cada alteração, o Codex deve:
-- escrever/ajustar testes antes da implementação quando aplicável;
-- executar testes focados e os checks pertinentes de lint, tipos e build;
-- revisar diff, segurança, isolamento entre tenants, logs, dados pessoais, migrações e contratos;
-- registrar comandos executados, resultados e limitações;
-- não declarar que testes, builds, auditorias ou deploys passaram se não foram executados.
+Para cada alteração:
+- escreva ou ajuste testes antes da implementação quando aplicável;
+- execute testes focados e checks pertinentes de lint, tipos e build;
+- revise diff, segurança, isolamento entre tenants, logs, dados pessoais, migrações e contratos;
+- registre comandos executados, resultados e limitações;
+- nunca declare que testes, builds, auditorias ou deploys passaram se não foram executados.
 
 Mudanças em regras fiscais, segurança, dados pessoais, migrações e produção exigem revisão humana.
 
-## 7. Comandos de verificação
+## 7. Verificação do ambiente
 
-Depois da instalação:
+No terminal:
 
 ```bash
+codex --version
+codex plugin marketplace list
 codex plugin list
 ```
 
-No Codex:
+Dentro da sessão Codex:
 
 ```text
 /skills
+/plugins
 ```
 
-Peça ao Codex para listar as skills disponíveis, informar quais são globais e quais pertencem ao repositório e resumir quando cada uma deve ser acionada. Em seguida, faça uma tarefa pequena e não fiscal para verificar o fluxo antes de iniciar alterações no motor tributário.
+Peça ao Codex para informar quais skills do projeto foram descobertas, quais plugins externos estão instalados e quais não estão disponíveis. Faça primeiro uma alteração pequena e não fiscal para testar o fluxo.
 
 ## 8. Limites
 
-Skills reduzem omissões e padronizam processos, mas não garantem código sem defeitos, segurança absoluta ou correção tributária. O resultado depende da qualidade das fontes, dos testes, das versões utilizadas e da revisão técnica e fiscal.
+Skills e plugins ajudam a padronizar o trabalho, mas não garantem ausência de defeitos, segurança absoluta ou correção tributária. A conclusão depende de testes executados, fontes confiáveis, versões identificadas e revisão técnica e fiscal.
