@@ -22,6 +22,17 @@ enum CalculationStatus {
   FAILED
 }
 
+enum DocumentType {
+  DANFSE
+}
+
+enum DocumentStatus {
+  RECEIVED
+  PROCESSING
+  SUCCEEDED
+  FAILED
+}
+
 enum FiscalEngine {
   RTC_REGIME_REGULAR
   RTC_SIMPLES_NACIONAL
@@ -35,6 +46,7 @@ model User {
   passwordHash String
   memberships Membership[]
   sessions Session[]
+  documents Document[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
@@ -75,6 +87,7 @@ model Company {
   taxIdentifierSuffix String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   calculations  FiscalCalculation[]
+  documents      Document[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -106,6 +119,30 @@ model FiscalCalculation {
   @@index([organizationId, status])
   @@index([companyId, createdAt])
   @@unique([organizationId, correlationId])
+}
+
+model Document {
+  id                  String         @id @default(uuid()) @db.Uuid
+  organizationId      String         @db.Uuid
+  companyId           String?        @db.Uuid
+  type                DocumentType
+  status              DocumentStatus @default(RECEIVED)
+  sourceXmlObjectKey  String
+  pdfObjectKey        String?
+  engineVersion       String
+  engineCommitSha     String
+  engineRepository    String
+  errorCode           String?
+  correlationId       String
+  organization        Organization   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  company             Company?       @relation(fields: [companyId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  createdAt           DateTime       @default(now())
+  completedAt         DateTime?
+
+  @@unique([organizationId, correlationId])
+  @@index([organizationId, createdAt])
+  @@index([organizationId, status])
+  @@index([companyId, createdAt])
 }
 
 model Session {
