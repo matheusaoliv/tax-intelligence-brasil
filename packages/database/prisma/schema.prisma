@@ -46,7 +46,6 @@ model User {
   passwordHash String
   memberships Membership[]
   sessions Session[]
-  documents Document[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
@@ -60,6 +59,7 @@ model Organization {
   calculations FiscalCalculation[]
   auditEvents AuditEvent[]
   sessions Session[]
+  documents Document[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
