@@ -70,13 +70,15 @@ model Company {
   id             String       @id @default(uuid()) @db.Uuid
   organizationId String       @db.Uuid
   legalName      String
-  taxIdentifier  String
+  taxIdentifierEncrypted String
+  taxIdentifierHash String
+  taxIdentifierSuffix String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   calculations  FiscalCalculation[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  @@unique([organizationId, taxIdentifier])
+  @@unique([organizationId, taxIdentifierHash])
   @@unique([id, organizationId])
   @@index([organizationId])
 }
