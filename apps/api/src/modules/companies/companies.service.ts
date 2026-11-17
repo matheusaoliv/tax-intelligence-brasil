@@ -3,6 +3,7 @@ import { PrismaService } from '../database/prisma.service';
 import { AuthenticatedRequest } from '../auth/session-auth.guard';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { TaxIdentifierCryptoService } from './tax-identifier-crypto.service';
+import { normalizeAndValidateTaxIdentifier } from './tax-identifier-validation';
 
 @Injectable()
 export class CompaniesService {
@@ -12,7 +13,7 @@ export class CompaniesService {
   ) {}
 
   async create(input: CreateCompanyDto, actor: AuthenticatedRequest['user']) {
-    const taxIdentifier = input.taxIdentifier;
+    const taxIdentifier = normalizeAndValidateTaxIdentifier(input.taxIdentifier);
     const taxIdentifierHash = this.crypto.fingerprint(taxIdentifier);
     const existing = await this.prisma.company.findFirst({
       where: { organizationId: actor.organizationId, taxIdentifierHash },
