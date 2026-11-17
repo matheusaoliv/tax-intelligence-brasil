@@ -8,7 +8,7 @@ type CurrentUser = { userId: string; organizationId: string; role: string };
 type Organization = { id: string; name: string; slug: string; role: string };
 type Company = { id: string; legalName: string; taxIdentifierMasked: string; createdAt: string };
 type Calculation = { id: string; engine: string; status: string; engineVersion: string; createdAt: string };
-type DocumentRecord = { id: string; type: string; status: string; createdAt: string };
+type DocumentRecord = { id: string; type: string; status: string; createdAt: string };\ntype MemberRecord = { role: string; createdAt: string; user: { id: string; email: string; displayName: string } };\ntype AuditRecord = { id: string; action: string; resourceType: string; createdAt: string; actorUserId: string | null };
 
 export default function WorkspacePage() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function WorkspacePage() {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [calculations, setCalculations] = useState<Calculation[]>([]);
-  const [documents, setDocuments] = useState<DocumentRecord[]>([]);
+  const [documents, setDocuments] = useState<DocumentRecord[]>([]);\n  const [members, setMembers] = useState<MemberRecord[]>([]);\n  const [auditEvents, setAuditEvents] = useState<AuditRecord[]>([]);\n  const [memberEmail, setMemberEmail] = useState('');\n  const [memberRole, setMemberRole] = useState('ACCOUNTANT');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
@@ -28,7 +28,7 @@ export default function WorkspacePage() {
 
   async function loadWorkspace() {
     const currentUser = await apiRequest<CurrentUser>('/auth/me');
-    const [currentOrganization, companyRows, calculationRows, documentRows] = await Promise.all([
+    const [currentOrganization, companyRows, calculationRows, documentRows, memberRows, auditRows] = await Promise.all([
       apiRequest<Organization>('/organizations/current'),
       apiRequest<Company[]>('/companies'),
       apiRequest<Calculation[]>('/calculations'),
@@ -38,7 +38,7 @@ export default function WorkspacePage() {
     setOrganization(currentOrganization);
     setCompanies(companyRows);
     setCalculations(calculationRows);
-    setDocuments(documentRows);
+    setDocuments(documentRows);\n    setMembers(memberRows);\n    setAuditEvents(auditRows);
   }
 
   useEffect(() => {
@@ -127,7 +127,7 @@ export default function WorkspacePage() {
     }
   }
 
-  async function logout() {
+  async function addMember(event: FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    setBusy(true);\n    setMessage('');\n    try {\n      const member = await apiRequest<MemberRecord>('/organizations/current/members', {\n        method: 'POST',\n        body: JSON.stringify({ email: memberEmail, role: memberRole }),\n      });\n      setMembers((current) => [...current, member]);\n      setMemberEmail('');\n      setMessage('Membro adicionado à organização.');\n    } catch (error) {\n      setMessage(error instanceof Error ? error.message : 'Não foi possível adicionar o membro.');\n    } finally {\n      setBusy(false);\n    }\n  }\n\n  async function logout() {
     try { await apiRequest<void>('/auth/logout', { method: 'POST' }); }
     finally { router.replace('/login'); }
   }
@@ -211,6 +211,47 @@ export default function WorkspacePage() {
             {documents.length === 0 && <p className="empty-state">Nenhum documento processado.</p>}
           </div>
         </article>
+      </section>
+
+      <section className="workspace-grid secondary-grid">
+        <article className="workspace-panel">
+          <div className="panel-heading"><div><p className="eyebrow">EQUIPE</p><h2>Membros da organização</h2></div></div>
+          {['OWNER', 'ADMIN'].includes(user?.role ?? '') && (
+            <form className="stack-form" onSubmit={addMember}>
+              <label>E-mail de uma conta cadastrada<input type="email" value={memberEmail} onChange={(event) => setMemberEmail(event.target.value)} required /></label>
+              <label>Permissão<select value={memberRole} onChange={(event) => setMemberRole(event.target.value)}>
+                <option value="ACCOUNTANT">Contador</option>
+                <option value="OPERATOR">Operador</option>
+                <option value="VIEWER">Consulta</option>
+                {user?.role === 'OWNER' && <option value="ADMIN">Administrador</option>}
+              </select></label>
+              <button className="primary-button" disabled={busy}>Adicionar membro</button>
+            </form>
+          )}
+          <div className="record-list">
+            {members.map((member) => (
+              <div className="record-row" key={member.user.id}>
+                <div><strong>{member.user.displayName}</strong><small>{member.user.email}</small></div>
+                <span className="status-chip">{member.role}</span>
+              </div>
+            ))}
+            {members.length === 0 && <p className="empty-state">Nenhum membro cadastrado.</p>}
+          </div>
+        </article>
+
+        {['OWNER', 'ADMIN', 'ACCOUNTANT'].includes(user?.role ?? '') && (
+          <article className="workspace-panel">
+            <div className="panel-heading"><div><p className="eyebrow">RASTREABILIDADE</p><h2>Auditoria recente</h2></div></div>
+            <div className="record-list">
+              {auditEvents.map((event) => (
+                <div className="record-row" key={event.id}>
+                  <div><strong>{event.action}</strong><small>{event.resourceType} · {new Date(event.createdAt).toLocaleString('pt-BR')}</small></div>
+                </div>
+              ))}
+              {auditEvents.length === 0 && <p className="empty-state">Nenhum evento registrado.</p>}
+            </div>
+          </article>
+        )}
       </section>
 
       <footer>
