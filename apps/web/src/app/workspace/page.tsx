@@ -21,7 +21,7 @@ export default function WorkspacePage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [legalName, setLegalName] = useState('');
-  const [taxIdentifier, setTaxIdentifier] = useState('');
+  const [taxIdentifier, setTaxIdentifier] = useState('');\n  const [selectedCompanyId, setSelectedCompanyId] = useState('');
   const [xml, setXml] = useState('');
   const [engine, setEngine] = useState('RTC_REGIME_REGULAR');
   const [calculationJson, setCalculationJson] = useState('{\n  \n}');
@@ -88,7 +88,7 @@ export default function WorkspacePage() {
       }
       const calculation = await apiRequest<Calculation>('/calculations', {
         method: 'POST',
-        body: JSON.stringify({ engine, inputPayload }),
+        body: JSON.stringify({ engine, inputPayload, ...(selectedCompanyId ? { companyId: selectedCompanyId } : {}) }),
       });
       setCalculations((current) => [calculation, ...current]);
       setMessage('Solicitação enviada ao motor fiscal.');
@@ -106,7 +106,7 @@ export default function WorkspacePage() {
     try {
       const document = await apiRequest<DocumentRecord>('/documents/danfse', {
         method: 'POST',
-        body: JSON.stringify({ xml, stc: '0', canhoto: true }),
+        body: JSON.stringify({ xml, stc: '0', canhoto: true, ...(selectedCompanyId ? { companyId: selectedCompanyId } : {}) }),
       });
       setDocuments((current) => [document, ...current]);
       setXml('');
@@ -166,7 +166,7 @@ export default function WorkspacePage() {
       <section className="workspace-grid">
         <article className="workspace-panel">
           <div className="panel-heading"><div><p className="eyebrow">CADASTRO</p><h2>Adicionar empresa</h2></div></div>
-          <form className="stack-form" onSubmit={createCompany}>
+          {['OWNER', 'ADMIN', 'ACCOUNTANT'].includes(user?.role ?? '') && (\n          <form className="stack-form" onSubmit={createCompany}>
             <label>Razão social<input value={legalName} onChange={(event) => setLegalName(event.target.value)} required minLength={2} maxLength={180} /></label>
             <label>CPF ou CNPJ<input value={taxIdentifier} onChange={(event) => setTaxIdentifier(event.target.value)} required inputMode="numeric" placeholder="Somente números ou pontuação" /></label>
             <button className="primary-button" disabled={busy}>Cadastrar empresa</button>
