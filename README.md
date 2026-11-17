@@ -36,6 +36,14 @@ Plataforma multiempresa para empresas e escritórios contábeis, integrando moto
 - `packages/contracts`: contratos compartilhados validados com Zod.
 - `packages/database`: modelo PostgreSQL/Prisma.
 
+## Executar com Docker Compose
+1. Copie `.env.example` para `.env` e gere uma senha forte para `POSTGRES_PASSWORD`.
+2. Configure `DATA_ENCRYPTION_KEY` com uma chave aleatória de 32 bytes codificada em Base64 antes de cadastrar dados fiscais.
+3. Execute `docker compose up --build`.
+4. A API ficará em `http://localhost:3001/api/v1` e a interface em `http://localhost:3000`.
+
+Os motores oficiais ficam em um perfil separado: `docker compose --profile fiscal-engines up --build`. O motor do Simples Nacional exige `SIMPLES_DB_DOWNLOAD_URL`, a URL base autorizada para baixar o banco SQLite oficial. Essa URL não é presumida pelo projeto.
+
 ## Documentação
 - AGENTS.md: regras para agentes e contribuidores.
 - DESIGN.md: direção visual inicial.
