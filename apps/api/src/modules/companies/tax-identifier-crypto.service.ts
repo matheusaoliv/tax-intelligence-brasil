@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { createCipheriv, createHmac, randomBytes } from 'node:crypto';
+import { createCipheriv, createHmac, hkdfSync, randomBytes } from 'node:crypto';
 
 @Injectable()
 export class TaxIdentifierCryptoService {
@@ -15,8 +15,12 @@ export class TaxIdentifierCryptoService {
     return key;
   }
 
+  private deriveKey(purpose: string): Buffer {
+    return Buffer.from(hkdfSync('sha256', this.getKey(), 'tax-intelligence-brasil-v1', purpose, 32));
+  }
+
   encrypt(value: string): string {
-    const key = this.getKey();
+    const key = this.deriveKey('tax-identifier-encryption');
     const iv = randomBytes(12);
     const cipher = createCipheriv('aes-256-gcm', key, iv);
     const encrypted = Buffer.concat([cipher.update(value, 'utf8'), cipher.final()]);
@@ -25,7 +29,7 @@ export class TaxIdentifierCryptoService {
   }
 
   fingerprint(value: string): string {
-    return createHmac('sha256', this.getKey())
+    return createHmac('sha256', this.deriveKey('tax-identifier-fingerprint'))
       .update('tax-identifier:v1:')
       .update(value)
       .digest('hex');
