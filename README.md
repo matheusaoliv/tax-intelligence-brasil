@@ -37,6 +37,7 @@ Plataforma multiempresa para empresas e escritórios contábeis, integrando moto
 - docs/SKILLS.md: skills de UI/UX.
 - docs/MOTION-AND-DATA-VIZ-SKILLS.md: motion, animação e visualização de dados.
 - docs/ENGINEERING-QUALITY-SKILLS.md: skills de código, testes, segurança e quality gates.
+- docs/CODEX-SETUP.md: instalação e configuração do ambiente Codex.
 
 ## Status
 Fase de fundação. Builds, testes, contratos OpenAPI, licenças e SHAs dos projetos upstream ainda precisam ser validados.
