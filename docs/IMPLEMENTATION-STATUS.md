@@ -9,6 +9,8 @@ Atualizado durante a implementação remota pelo GitHub.
 - [x] Endpoint de saúde em `/api/v1/health`.
 - [x] Aplicação web Next.js com dashboard inicial responsivo.
 - [x] Pacote compartilhado de contratos Zod para contexto de tenant, identidade do motor e registro de cálculo.
+- [x] Teste unitário inicial para o endpoint de saúde.
+- [x] Workflow inicial do GitHub Actions para executar o build.
 - [x] Documentação e skills de engenharia em `.agents/skills`.
 
 ## Não validado nesta etapa
