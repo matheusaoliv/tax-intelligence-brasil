@@ -42,7 +42,7 @@ Plataforma multiempresa para empresas e escritórios contábeis, integrando moto
 3. Execute `docker compose up --build`.
 4. A API ficará em `http://localhost:3001/api/v1` e a interface em `http://localhost:3000`.
 
-Os motores oficiais ficam em um perfil separado: `docker compose --profile fiscal-engines up --build`. O motor do Simples Nacional exige `SIMPLES_DB_DOWNLOAD_URL`, a URL base autorizada para baixar o banco SQLite oficial. Essa URL não é presumida pelo projeto.
+Os motores oficiais ficam em perfis separados: `docker compose --profile fiscal-engines up --build` inicia Regime Regular e DANFSe. O motor do Simples Nacional é iniciado explicitamente com `docker compose --profile fiscal-engines --profile simples-nacional up --build` e exige `SIMPLES_DB_DOWNLOAD_URL`, a URL base autorizada para baixar o banco SQLite oficial. Essa URL não é presumida pelo projeto.
 
 ## Documentação
 - docs/API.md: rotas, autenticação, permissões e contratos iniciais.
