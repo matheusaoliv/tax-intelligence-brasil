@@ -9,14 +9,18 @@ import { AuthenticatedRequest, SessionAuthGuard } from './session-auth.guard';
 const COOKIE_NAME = 'tib_session';
 const SESSION_MAX_AGE = 8 * 60 * 60 * 1000;
 
-function setSessionCookie(response: Response, token: string): void {
-  response.cookie(COOKIE_NAME, token, {
+function sessionCookieOptions() {
+  const sameSite = process.env.SESSION_COOKIE_SAME_SITE === 'none' ? 'none' as const : 'lax' as const;
+  return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production' || sameSite === 'none',
+    sameSite,
     path: '/api/v1',
-    maxAge: SESSION_MAX_AGE,
-  });
+  };
+}
+
+function setSessionCookie(response: Response, token: string): void {
+  response.cookie(COOKIE_NAME, token, { ...sessionCookieOptions(), maxAge: SESSION_MAX_AGE });
 }
 
 @Controller('auth')
@@ -57,11 +61,6 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
     await this.authService.revokeSession(request.user.sessionId);
-    response.clearCookie(COOKIE_NAME, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/api/v1',
-    });
+    response.clearCookie(COOKIE_NAME, sessionCookieOptions());
   }
 }
