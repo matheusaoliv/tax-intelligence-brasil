@@ -38,7 +38,7 @@ A senha deve ter no mínimo 12 caracteres. Login e cadastro têm limite de cinco
 - `POST /documents/danfse`: recebe XML da NFS-e nacional, `stc` opcional e `canhoto` opcional.
 - `GET /documents`: lista os últimos 50 documentos.
 - `GET /documents/:id/download`: gera URL assinada com validade de cinco minutos.
-- Limite padrão de XML: 5 MiB; máximo configurável: 32 MiB. DTD e declarações de entidades são rejeitados.
+- Limite padrão de XML: 5 MiB; máximo configurável: 32 MiB. Se elevar o limite acima do padrão, ajuste também `JSON_BODY_LIMIT` para comportar o XML dentro do envelope JSON. DTD e declarações de entidades são rejeitados.
 - XML original e PDF ficam em bucket privado S3 compatível, separados por organização. Configure criptografia em repouso e política de retenção no bucket.
 
 ## Auditoria
