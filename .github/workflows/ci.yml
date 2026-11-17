@@ -28,5 +28,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      - name: Validate Prisma schema
+        run: pnpm --filter @tax-intelligence/api db:validate
+
+      - name: Generate Prisma client
+        run: pnpm --filter @tax-intelligence/api db:generate
+
+      - name: API typecheck
+        run: pnpm --filter @tax-intelligence/api typecheck
+
+      - name: API tests
+        run: pnpm --filter @tax-intelligence/api test
+
       - name: Build workspace
         run: pnpm build
