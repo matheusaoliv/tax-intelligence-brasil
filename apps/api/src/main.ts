@@ -2,12 +2,14 @@ import 'reflect-metadata';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
+import express from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './modules/app.module';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { cors: false });
+  const app = await NestFactory.create(AppModule, { cors: false, bodyParser: false });
   app.use(helmet());
+  app.use(express.json({ limit: process.env.JSON_BODY_LIMIT ?? '7mb' }));
   app.setGlobalPrefix('api/v1');
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Tax Intelligence Brasil API')
