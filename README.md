@@ -45,6 +45,9 @@ Plataforma multiempresa para empresas e escritórios contábeis, integrando moto
 Os motores oficiais ficam em um perfil separado: `docker compose --profile fiscal-engines up --build`. O motor do Simples Nacional exige `SIMPLES_DB_DOWNLOAD_URL`, a URL base autorizada para baixar o banco SQLite oficial. Essa URL não é presumida pelo projeto.
 
 ## Documentação
+- docs/API.md: rotas, autenticação, permissões e contratos iniciais.
+- docs/UPSTREAM-ENGINES.md: versões e contratos dos motores oficiais.
+- docs/IMPLEMENTATION-STATUS.md: progresso e validações pendentes.
 - AGENTS.md: regras para agentes e contribuidores.
 - DESIGN.md: direção visual inicial.
 - docs/ARCHITECTURE-AND-PHASE-1.md: arquitetura e plano.
