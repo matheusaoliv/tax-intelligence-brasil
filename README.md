@@ -30,6 +30,12 @@ Plataforma multiempresa para empresas e escritórios contábeis, integrando moto
 5. Isolamento multi-tenant, RBAC, auditoria, LGPD e segurança desde a fundação.
 6. Animações não podem mascarar alterações em valores fiscais.
 
+## Estrutura de código
+- `apps/web`: aplicação Next.js.
+- `apps/api`: API NestJS, autenticação por sessão e rate limiting.
+- `packages/contracts`: contratos compartilhados validados com Zod.
+- `packages/database`: modelo PostgreSQL/Prisma.
+
 ## Documentação
 - AGENTS.md: regras para agentes e contribuidores.
 - DESIGN.md: direção visual inicial.
