@@ -1,14 +1,16 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthenticatedRequest, SessionAuthGuard } from '../auth/session-auth.guard';
+import { Roles, RolesGuard } from '../rbac/roles.guard';
 import { CreateCalculationDto } from './dto/create-calculation.dto';
 import { CalculationsService } from './calculations.service';
 
 @Controller('calculations')
-@UseGuards(SessionAuthGuard)
+@UseGuards(SessionAuthGuard, RolesGuard)
 export class CalculationsController {
   constructor(private readonly calculationsService: CalculationsService) {}
 
   @Post()
+  @Roles('OWNER', 'ADMIN', 'ACCOUNTANT', 'OPERATOR')
   create(@Body() input: CreateCalculationDto, @Req() request: AuthenticatedRequest) {
     return this.calculationsService.create(input, request.user);
   }
