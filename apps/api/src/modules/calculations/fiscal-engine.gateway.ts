@@ -36,12 +36,16 @@ export class FiscalEngineGateway {
     }
 
     const responseText = await response.text();
-    let output: Prisma.InputJsonValue;
+    let parsed: unknown;
     try {
-      output = JSON.parse(responseText) as Prisma.InputJsonValue;
+      parsed = JSON.parse(responseText) as unknown;
     } catch {
       throw new EngineGatewayError('ENGINE_INVALID_RESPONSE');
     }
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      throw new EngineGatewayError('ENGINE_INVALID_RESPONSE');
+    }
+    const output = parsed as Prisma.InputJsonObject;
 
     return {
       output,
