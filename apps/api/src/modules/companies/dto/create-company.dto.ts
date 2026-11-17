@@ -6,8 +6,9 @@ export class CreateCompanyDto {
   legalName!: string;
 
   @IsString()
-  @Matches(/^(?:\d{11}|\d{14})$/, {
-    message: 'Informe CPF ou CNPJ somente com números.',
+  @Length(11, 18)
+  @Matches(/^[A-Za-z0-9.\/-]+$/, {
+    message: 'Informe CPF ou CNPJ em formato válido.',
   })
   taxIdentifier!: string;
 }
