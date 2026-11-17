@@ -15,7 +15,11 @@ function readCookie(cookieHeader: string | undefined, name: string): string | un
   const entry = cookieHeader?.split(';').map((part) => part.trim())
     .find((part) => part.startsWith(`${name}=`));
   if (!entry) return undefined;
-  return decodeURIComponent(entry.slice(name.length + 1));
+  try {
+    return decodeURIComponent(entry.slice(name.length + 1));
+  } catch {
+    return undefined;
+  }
 }
 
 @Injectable()
