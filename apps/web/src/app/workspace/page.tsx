@@ -8,7 +8,9 @@ type CurrentUser = { userId: string; organizationId: string; role: string };
 type Organization = { id: string; name: string; slug: string; role: string };
 type Company = { id: string; legalName: string; taxIdentifierMasked: string; createdAt: string };
 type Calculation = { id: string; engine: string; status: string; engineVersion: string; createdAt: string };
-type DocumentRecord = { id: string; type: string; status: string; createdAt: string };\ntype MemberRecord = { role: string; createdAt: string; user: { id: string; email: string; displayName: string } };\ntype AuditRecord = { id: string; action: string; resourceType: string; createdAt: string; actorUserId: string | null };
+type DocumentRecord = { id: string; type: string; status: string; createdAt: string };
+type MemberRecord = { role: string; createdAt: string; user: { id: string; email: string; displayName: string } };
+type AuditRecord = { id: string; action: string; resourceType: string; createdAt: string; actorUserId: string | null };
 
 export default function WorkspacePage() {
   const router = useRouter();
@@ -16,12 +18,17 @@ export default function WorkspacePage() {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [calculations, setCalculations] = useState<Calculation[]>([]);
-  const [documents, setDocuments] = useState<DocumentRecord[]>([]);\n  const [members, setMembers] = useState<MemberRecord[]>([]);\n  const [auditEvents, setAuditEvents] = useState<AuditRecord[]>([]);\n  const [memberEmail, setMemberEmail] = useState('');\n  const [memberRole, setMemberRole] = useState('ACCOUNTANT');
+  const [documents, setDocuments] = useState<DocumentRecord[]>([]);
+  const [members, setMembers] = useState<MemberRecord[]>([]);
+  const [auditEvents, setAuditEvents] = useState<AuditRecord[]>([]);
+  const [memberEmail, setMemberEmail] = useState('');
+  const [memberRole, setMemberRole] = useState('ACCOUNTANT');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [legalName, setLegalName] = useState('');
-  const [taxIdentifier, setTaxIdentifier] = useState('');\n  const [selectedCompanyId, setSelectedCompanyId] = useState('');
+  const [taxIdentifier, setTaxIdentifier] = useState('');
+  const [selectedCompanyId, setSelectedCompanyId] = useState('');
   const [xml, setXml] = useState('');
   const [engine, setEngine] = useState('RTC_REGIME_REGULAR');
   const [calculationJson, setCalculationJson] = useState('{\n  \n}');
@@ -33,12 +40,18 @@ export default function WorkspacePage() {
       apiRequest<Company[]>('/companies'),
       apiRequest<Calculation[]>('/calculations'),
       apiRequest<DocumentRecord[]>('/documents'),
+      apiRequest<MemberRecord[]>('/organizations/current/members'),
+      ['OWNER', 'ADMIN', 'ACCOUNTANT'].includes(currentUser.role)
+        ? apiRequest<AuditRecord[]>('/audit?limit=20')
+        : Promise.resolve([] as AuditRecord[]),
     ]);
     setUser(currentUser);
     setOrganization(currentOrganization);
     setCompanies(companyRows);
     setCalculations(calculationRows);
-    setDocuments(documentRows);\n    setMembers(memberRows);\n    setAuditEvents(auditRows);
+    setDocuments(documentRows);
+    setMembers(memberRows);
+    setAuditEvents(auditRows);
   }
 
   useEffect(() => {
@@ -64,7 +77,10 @@ export default function WorkspacePage() {
     try {
       const company = await apiRequest<Company>('/companies', {
         method: 'POST',
-        body: JSON.stringify({ legalName, taxIdentifier: taxIdentifier.replace(/\D/g, '') }),
+        body: JSON.stringify({
+          legalName,
+          taxIdentifier: taxIdentifier.replace(/[^a-zA-Z0-9]/g, '').toUpperCase(),
+        }),
       });
       setCompanies((current) => [company, ...current]);
       setLegalName('');
@@ -88,7 +104,11 @@ export default function WorkspacePage() {
       }
       const calculation = await apiRequest<Calculation>('/calculations', {
         method: 'POST',
-        body: JSON.stringify({ engine, inputPayload, ...(selectedCompanyId ? { companyId: selectedCompanyId } : {}) }),
+        body: JSON.stringify({
+          engine,
+          inputPayload,
+          ...(selectedCompanyId ? { companyId: selectedCompanyId } : {}),
+        }),
       });
       setCalculations((current) => [calculation, ...current]);
       setMessage('Solicitação enviada ao motor fiscal.');
@@ -106,7 +126,12 @@ export default function WorkspacePage() {
     try {
       const document = await apiRequest<DocumentRecord>('/documents/danfse', {
         method: 'POST',
-        body: JSON.stringify({ xml, stc: '0', canhoto: true, ...(selectedCompanyId ? { companyId: selectedCompanyId } : {}) }),
+        body: JSON.stringify({
+          xml,
+          stc: '0',
+          canhoto: true,
+          ...(selectedCompanyId ? { companyId: selectedCompanyId } : {}),
+        }),
       });
       setDocuments((current) => [document, ...current]);
       setXml('');
@@ -120,19 +145,43 @@ export default function WorkspacePage() {
 
   async function downloadDocument(id: string) {
     try {
-      const result = await apiRequest<{ url: string; expiresInSeconds: number }>(`/documents/${id}/download`);
+      const result = await apiRequest<{ url: string; expiresInSeconds: number }>('/documents/' + id + '/download');
       window.location.assign(result.url);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Não foi possível obter o documento.');
     }
   }
 
-  async function addMember(event: FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    setBusy(true);\n    setMessage('');\n    try {\n      const member = await apiRequest<MemberRecord>('/organizations/current/members', {\n        method: 'POST',\n        body: JSON.stringify({ email: memberEmail, role: memberRole }),\n      });\n      setMembers((current) => [...current, member]);\n      setMemberEmail('');\n      setMessage('Membro adicionado à organização.');\n    } catch (error) {\n      setMessage(error instanceof Error ? error.message : 'Não foi possível adicionar o membro.');\n    } finally {\n      setBusy(false);\n    }\n  }\n\n  async function logout() {
+  async function addMember(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage('');
+    try {
+      const member = await apiRequest<MemberRecord>('/organizations/current/members', {
+        method: 'POST',
+        body: JSON.stringify({ email: memberEmail, role: memberRole }),
+      });
+      setMembers((current) => [...current, member]);
+      setMemberEmail('');
+      setMessage('Membro adicionado à organização.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Não foi possível adicionar o membro.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function logout() {
     try { await apiRequest<void>('/auth/logout', { method: 'POST' }); }
     finally { router.replace('/login'); }
   }
 
   if (loading) return <main className="shell loading-state">Carregando ambiente...</main>;
+
+  const canManageCompanies = ['OWNER', 'ADMIN', 'ACCOUNTANT'].includes(user?.role ?? '');
+  const canOperateFiscal = ['OWNER', 'ADMIN', 'ACCOUNTANT', 'OPERATOR'].includes(user?.role ?? '');
+  const canManageMembers = ['OWNER', 'ADMIN'].includes(user?.role ?? '');
+  const canReadAudit = ['OWNER', 'ADMIN', 'ACCOUNTANT'].includes(user?.role ?? '');
 
   return (
     <main className="shell workspace">
@@ -165,12 +214,14 @@ export default function WorkspacePage() {
 
       <section className="workspace-grid">
         <article className="workspace-panel">
-          <div className="panel-heading"><div><p className="eyebrow">CADASTRO</p><h2>Adicionar empresa</h2></div></div>
-          {['OWNER', 'ADMIN', 'ACCOUNTANT'].includes(user?.role ?? '') && (\n          <form className="stack-form" onSubmit={createCompany}>
-            <label>Razão social<input value={legalName} onChange={(event) => setLegalName(event.target.value)} required minLength={2} maxLength={180} /></label>
-            <label>CPF ou CNPJ<input value={taxIdentifier} onChange={(event) => setTaxIdentifier(event.target.value)} required inputMode="numeric" placeholder="Somente números ou pontuação" /></label>
-            <button className="primary-button" disabled={busy}>Cadastrar empresa</button>
-          </form>
+          <div className="panel-heading"><div><p className="eyebrow">CADASTRO</p><h2>Empresas</h2></div></div>
+          {canManageCompanies && (
+            <form className="stack-form" onSubmit={createCompany}>
+              <label>Razão social<input value={legalName} onChange={(event) => setLegalName(event.target.value)} required minLength={2} maxLength={180} /></label>
+              <label>CPF ou CNPJ<input value={taxIdentifier} onChange={(event) => setTaxIdentifier(event.target.value)} required inputMode="text" placeholder="CPF, CNPJ numérico ou alfanumérico" /></label>
+              <button className="primary-button" disabled={busy}>Cadastrar empresa</button>
+            </form>
+          )}
           <div className="record-list">
             {companies.length === 0 ? <p className="empty-state">Nenhuma empresa cadastrada.</p> : companies.map((company) => (
               <div className="record-row" key={company.id}><div><strong>{company.legalName}</strong><small>{company.taxIdentifierMasked}</small></div><span className="record-dot" /></div>
@@ -180,14 +231,20 @@ export default function WorkspacePage() {
 
         <article className="workspace-panel">
           <div className="panel-heading"><div><p className="eyebrow">MOTOR FISCAL</p><h2>Novo cálculo</h2></div></div>
-          <form className="stack-form" onSubmit={createCalculation}>
-            <label>Motor<select value={engine} onChange={(event) => setEngine(event.target.value)}>
-              <option value="RTC_REGIME_REGULAR">Regime Regular</option>
-              <option value="RTC_SIMPLES_NACIONAL">Simples Nacional</option>
-            </select></label>
-            <label>Entrada JSON<textarea value={calculationJson} onChange={(event) => setCalculationJson(event.target.value)} rows={7} spellCheck={false} /></label>
-            <button className="primary-button" disabled={busy}>Enviar para cálculo</button>
-          </form>
+          {canOperateFiscal && (
+            <form className="stack-form" onSubmit={createCalculation}>
+              <label>Empresa (opcional)<select value={selectedCompanyId} onChange={(event) => setSelectedCompanyId(event.target.value)}>
+                <option value="">Sem empresa vinculada</option>
+                {companies.map((company) => <option key={company.id} value={company.id}>{company.legalName}</option>)}
+              </select></label>
+              <label>Motor<select value={engine} onChange={(event) => setEngine(event.target.value)}>
+                <option value="RTC_REGIME_REGULAR">Regime Regular</option>
+                <option value="RTC_SIMPLES_NACIONAL">Simples Nacional</option>
+              </select></label>
+              <label>Entrada JSON<textarea value={calculationJson} onChange={(event) => setCalculationJson(event.target.value)} rows={7} spellCheck={false} /></label>
+              <button className="primary-button" disabled={busy}>Enviar para cálculo</button>
+            </form>
+          )}
           <div className="record-list">
             {calculations.slice(0, 5).map((item) => (
               <div className="record-row" key={item.id}><div><strong>{item.engine === 'RTC_REGIME_REGULAR' ? 'Regime Regular' : 'Simples Nacional'}</strong><small>Motor {item.engineVersion}</small></div><span className="status-chip">{item.status}</span></div>
@@ -198,10 +255,16 @@ export default function WorkspacePage() {
 
         <article className="workspace-panel document-panel">
           <div className="panel-heading"><div><p className="eyebrow">DOCUMENTOS FISCAIS</p><h2>Gerar DANFSe</h2></div></div>
-          <form className="stack-form" onSubmit={createDanfse}>
-            <label>XML da NFS-e<textarea value={xml} onChange={(event) => setXml(event.target.value)} rows={7} placeholder="Cole o XML completo da NFS-e nacional..." spellCheck={false} required minLength={20} /></label>
-            <button className="primary-button" disabled={busy || xml.length < 20}>Gerar PDF</button>
-          </form>
+          {canOperateFiscal && (
+            <form className="stack-form" onSubmit={createDanfse}>
+              <label>Empresa (opcional)<select value={selectedCompanyId} onChange={(event) => setSelectedCompanyId(event.target.value)}>
+                <option value="">Sem empresa vinculada</option>
+                {companies.map((company) => <option key={company.id} value={company.id}>{company.legalName}</option>)}
+              </select></label>
+              <label>XML da NFS-e<textarea value={xml} onChange={(event) => setXml(event.target.value)} rows={7} placeholder="Cole o XML completo da NFS-e nacional..." spellCheck={false} required minLength={20} /></label>
+              <button className="primary-button" disabled={busy || xml.length < 20}>Gerar PDF</button>
+            </form>
+          )}
           <div className="record-list">
             {documents.slice(0, 5).map((item) => (
               <div className="record-row" key={item.id}><div><strong>DANFSe</strong><small>{new Date(item.createdAt).toLocaleString('pt-BR')}</small></div>
@@ -216,7 +279,7 @@ export default function WorkspacePage() {
       <section className="workspace-grid secondary-grid">
         <article className="workspace-panel">
           <div className="panel-heading"><div><p className="eyebrow">EQUIPE</p><h2>Membros da organização</h2></div></div>
-          {['OWNER', 'ADMIN'].includes(user?.role ?? '') && (
+          {canManageMembers && (
             <form className="stack-form" onSubmit={addMember}>
               <label>E-mail de uma conta cadastrada<input type="email" value={memberEmail} onChange={(event) => setMemberEmail(event.target.value)} required /></label>
               <label>Permissão<select value={memberRole} onChange={(event) => setMemberRole(event.target.value)}>
@@ -239,7 +302,7 @@ export default function WorkspacePage() {
           </div>
         </article>
 
-        {['OWNER', 'ADMIN', 'ACCOUNTANT'].includes(user?.role ?? '') && (
+        {canReadAudit && (
           <article className="workspace-panel">
             <div className="panel-heading"><div><p className="eyebrow">RASTREABILIDADE</p><h2>Auditoria recente</h2></div></div>
             <div className="record-list">
