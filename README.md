@@ -36,6 +36,7 @@ Plataforma multiempresa para empresas e escritórios contábeis, integrando moto
 - docs/ARCHITECTURE-AND-PHASE-1.md: arquitetura e plano.
 - docs/SKILLS.md: skills de UI/UX.
 - docs/MOTION-AND-DATA-VIZ-SKILLS.md: motion, animação e visualização de dados.
+- docs/ENGINEERING-QUALITY-SKILLS.md: skills de código, testes, segurança e quality gates.
 
 ## Status
 Fase de fundação. Builds, testes, contratos OpenAPI, licenças e SHAs dos projetos upstream ainda precisam ser validados.
