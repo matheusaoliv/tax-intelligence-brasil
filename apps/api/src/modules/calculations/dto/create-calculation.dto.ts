@@ -3,7 +3,7 @@ import { IsIn, IsObject, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateCalculationDto {
   @IsIn([FiscalEngine.RTC_REGIME_REGULAR, FiscalEngine.RTC_SIMPLES_NACIONAL])
-  engine!: FiscalEngine;
+  engine!: FiscalEngine.RTC_REGIME_REGULAR | FiscalEngine.RTC_SIMPLES_NACIONAL;
 
   @IsOptional()
   @IsUUID()
