@@ -18,7 +18,7 @@ async function bootstrap(): Promise<void> {
     .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('docs', app, swaggerDocument);
+  SwaggerModule.setup('api/v1/docs', app, swaggerDocument);
   app.enableCors({
     origin: (process.env.WEB_ORIGIN ?? 'http://localhost:3000').split(',').map((value) => value.trim()),
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
