@@ -8,6 +8,7 @@ import { CalculationsModule } from './calculations/calculations.module';
 import { CompaniesModule } from './companies/companies.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { DocumentsModule } from './documents/documents.module';
+import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DocumentsModule } from './documents/documents.module';
     CompaniesModule,
     OrganizationsModule,
     DocumentsModule,
+    AuditModule,
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
