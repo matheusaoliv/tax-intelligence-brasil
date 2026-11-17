@@ -1,5 +1,7 @@
 CREATE TYPE "MembershipRole" AS ENUM ('OWNER', 'ADMIN', 'ACCOUNTANT', 'OPERATOR', 'VIEWER');
 CREATE TYPE "CalculationStatus" AS ENUM ('RECEIVED', 'PROCESSING', 'SUCCEEDED', 'FAILED');
+CREATE TYPE "DocumentType" AS ENUM ('DANFSE');
+CREATE TYPE "DocumentStatus" AS ENUM ('RECEIVED', 'PROCESSING', 'SUCCEEDED', 'FAILED');
 CREATE TYPE "FiscalEngine" AS ENUM ('RTC_REGIME_REGULAR', 'RTC_SIMPLES_NACIONAL', 'DANFSE');
 
 CREATE TABLE "User" (
@@ -73,6 +75,28 @@ CREATE INDEX "FiscalCalculation_organizationId_status_idx" ON "FiscalCalculation
 CREATE INDEX "FiscalCalculation_companyId_createdAt_idx" ON "FiscalCalculation"("companyId", "createdAt");
 CREATE UNIQUE INDEX "FiscalCalculation_organizationId_correlationId_key" ON "FiscalCalculation"("organizationId", "correlationId");
 
+CREATE TABLE "Document" (
+  "id" UUID NOT NULL,
+  "organizationId" UUID NOT NULL,
+  "companyId" UUID,
+  "type" "DocumentType" NOT NULL,
+  "status" "DocumentStatus" NOT NULL DEFAULT 'RECEIVED',
+  "sourceXmlObjectKey" TEXT NOT NULL,
+  "pdfObjectKey" TEXT,
+  "engineVersion" TEXT NOT NULL,
+  "engineCommitSha" TEXT NOT NULL,
+  "engineRepository" TEXT NOT NULL,
+  "errorCode" TEXT,
+  "correlationId" TEXT NOT NULL,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "completedAt" TIMESTAMP(3),
+  CONSTRAINT "Document_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX "Document_organizationId_correlationId_key" ON "Document"("organizationId", "correlationId");
+CREATE INDEX "Document_organizationId_createdAt_idx" ON "Document"("organizationId", "createdAt");
+CREATE INDEX "Document_organizationId_status_idx" ON "Document"("organizationId", "status");
+CREATE INDEX "Document_companyId_createdAt_idx" ON "Document"("companyId", "createdAt");
+
 CREATE TABLE "Session" (
   "id" UUID NOT NULL,
   "userId" UUID NOT NULL,
@@ -108,6 +132,8 @@ ALTER TABLE "Membership" ADD CONSTRAINT "Membership_userId_fkey" FOREIGN KEY ("u
 ALTER TABLE "Company" ADD CONSTRAINT "Company_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "FiscalCalculation" ADD CONSTRAINT "FiscalCalculation_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "FiscalCalculation" ADD CONSTRAINT "FiscalCalculation_companyId_organizationId_fkey" FOREIGN KEY ("companyId", "organizationId") REFERENCES "Company"("id", "organizationId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Document" ADD CONSTRAINT "Document_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Document" ADD CONSTRAINT "Document_companyId_organizationId_fkey" FOREIGN KEY ("companyId", "organizationId") REFERENCES "Company"("id", "organizationId") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "Session" ADD CONSTRAINT "Session_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "AuditEvent" ADD CONSTRAINT "AuditEvent_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
