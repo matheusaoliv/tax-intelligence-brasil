@@ -11,6 +11,13 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
+function readCookie(cookieHeader: string | undefined, name: string): string | undefined {
+  const entry = cookieHeader?.split(';').map((part) => part.trim())
+    .find((part) => part.startsWith(`${name}=`));
+  if (!entry) return undefined;
+  return decodeURIComponent(entry.slice(name.length + 1));
+}
+
 @Injectable()
 export class SessionAuthGuard implements CanActivate {
   constructor(private readonly authService: AuthService) {}
@@ -18,13 +25,13 @@ export class SessionAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const authorization = request.headers.authorization;
-    if (!authorization?.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Token de acesso obrigatório.');
-    }
+    const bearerToken = authorization?.startsWith('Bearer ')
+      ? authorization.slice('Bearer '.length).trim()
+      : undefined;
+    const token = bearerToken ?? readCookie(request.headers.cookie, 'tib_session');
 
-    const token = authorization.slice('Bearer '.length).trim();
-    if (token.length < 32 || token.length > 256) {
-      throw new UnauthorizedException('Token de acesso inválido.');
+    if (!token || token.length < 32 || token.length > 256) {
+      throw new UnauthorizedException('Sessão de acesso obrigatória ou inválida.');
     }
 
     request.user = await this.authService.authenticate(token);
