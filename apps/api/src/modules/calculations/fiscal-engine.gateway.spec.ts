@@ -2,6 +2,14 @@ import { FiscalEngine } from '@prisma/client';
 import { EngineGatewayError, FiscalEngineGateway } from './fiscal-engine.gateway';
 
 describe('FiscalEngineGateway', () => {
+  const regularPayload = {
+  id: '6194602ea71cbf9431c236de4409d920',
+  versao: '1.0.0',
+  dhFatoGerador: '2027-03-10T10:00:00-03:00',
+  municipio: 4314902,
+  uf: 'RS',
+  itens: [{ numero: 1, cst: '200', cClassTrib: '200003', ncm: '10063021', baseCalculo: 100 }],
+}
   const gateway = new FiscalEngineGateway();
   const originalFetch = globalThis.fetch;
 
@@ -18,7 +26,7 @@ describe('FiscalEngineGateway', () => {
     }));
     globalThis.fetch = fetchMock;
 
-    const result = await gateway.execute(FiscalEngine.RTC_REGIME_REGULAR, { id: 'fixture-1' });
+    const result = await gateway.execute(FiscalEngine.RTC_REGIME_REGULAR, regularPayload);
 
     expect(fetchMock).toHaveBeenCalledWith(
       'http://127.0.0.1:8080/api/calculadora/observabilidade/regime-geral',
@@ -33,7 +41,10 @@ describe('FiscalEngineGateway', () => {
     const fetchMock = jest.fn().mockResolvedValue(new Response(JSON.stringify({ itens: [] }), { status: 200 }));
     globalThis.fetch = fetchMock;
 
-    await gateway.execute(FiscalEngine.RTC_SIMPLES_NACIONAL, { id: 'fixture-2' });
+    await gateway.execute(FiscalEngine.RTC_SIMPLES_NACIONAL, {
+      id: 'calc-001', versao: '2.0.0', data: '2027-03-15', tpDoc: '55', CRT: '1',
+      itens: [{ cClassTrib: '000001', baseCalculo: '950.00', valorImpostoSeletivo: '0.00' }],
+    });
 
     expect(fetchMock).toHaveBeenCalledWith(
       'http://simples-engine:8082/api/calculadora/observabilidade/simples-nacional',
@@ -44,7 +55,7 @@ describe('FiscalEngineGateway', () => {
   it('does not expose an upstream response body when the engine rejects a request', async () => {
     globalThis.fetch = jest.fn().mockResolvedValue(new Response('sensitive upstream details', { status: 422 }));
 
-    await expect(gateway.execute(FiscalEngine.RTC_REGIME_REGULAR, {}))
+    await expect(gateway.execute(FiscalEngine.RTC_REGIME_REGULAR, regularPayload))
       .rejects.toBeInstanceOf(EngineGatewayError);
   });
 
