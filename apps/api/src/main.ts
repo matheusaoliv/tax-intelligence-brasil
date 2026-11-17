@@ -23,7 +23,7 @@ async function bootstrap(): Promise<void> {
     origin: (process.env.WEB_ORIGIN ?? 'http://localhost:3000').split(',').map((value) => value.trim()),
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID'],
-    credentials: false,
+    credentials: true,
   });
   app.useGlobalPipes(
     new ValidationPipe({
