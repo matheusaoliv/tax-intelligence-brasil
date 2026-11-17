@@ -79,6 +79,8 @@ services:
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
       S3_SERVER_SIDE_ENCRYPTION: ${S3_SERVER_SIDE_ENCRYPTION:-AES256}
       XML_MAX_SIZE_BYTES: ${XML_MAX_SIZE_BYTES:-5242880}
+      JSON_BODY_LIMIT: ${JSON_BODY_LIMIT:-7mb}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:-}
     command: ["sh", "-c", "pnpm --filter @tax-intelligence/api db:migrate:deploy && pnpm --filter @tax-intelligence/api start"]
     depends_on:
       postgres:
