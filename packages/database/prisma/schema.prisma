@@ -92,6 +92,7 @@ model FiscalCalculation {
   engineRepository  String
   inputPayload      Json
   originalOutput    Json?
+  responseMetadata  Json?
   errorCode         String?
   correlationId    String
   organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Restrict)
