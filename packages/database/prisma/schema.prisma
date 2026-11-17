@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  ACCOUNTANT
+  OPERATOR
+  VIEWER
+}
+
+enum CalculationStatus {
+  RECEIVED
+  PROCESSING
+  SUCCEEDED
+  FAILED
+}
+
+enum FiscalEngine {
+  RTC_REGIME_REGULAR
+  RTC_SIMPLES_NACIONAL
+  DANFSE
+}
+
+model User {
+  id          String       @id @default(uuid()) @db.Uuid
+  email       String       @unique
+  displayName String
+  memberships Membership[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Organization {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String       @unique
+  memberships Membership[]
+  companies   Company[]
+  calculations FiscalCalculation[]
+  auditEvents AuditEvent[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Membership {
+  id             String         @id @default(uuid()) @db.Uuid
+  organizationId String         @db.Uuid
+  userId         String         @db.Uuid
+  role           MembershipRole
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime       @default(now())
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@index([organizationId, role])
+}
+
+model Company {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  legalName      String
+  taxIdentifier  String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  calculations  FiscalCalculation[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, taxIdentifier])
+  @@index([organizationId])
+}
+
+model FiscalCalculation {
+  id                String             @id @default(uuid()) @db.Uuid
+  organizationId    String             @db.Uuid
+  companyId         String?            @db.Uuid
+  engine            FiscalEngine
+  status            CalculationStatus  @default(RECEIVED)
+  engineVersion     String
+  engineCommitSha   String
+  engineRepository  String
+  inputPayload      Json
+  originalOutput    Json?
+  errorCode         String?
+  correlationId    String
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  company           Company?            @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  createdAt         DateTime            @default(now())
+  completedAt       DateTime?
+
+  @@index([organizationId, createdAt])
+  @@index([organizationId, status])
+  @@index([companyId, createdAt])
+  @@unique([organizationId, correlationId])
+}
+
+model AuditEvent {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  actorUserId    String?      @db.Uuid
+  action         String
+  resourceType   String
+  resourceId     String?
+  metadata       Json?
+  correlationId String?
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([organizationId, resourceType, resourceId])
+}
