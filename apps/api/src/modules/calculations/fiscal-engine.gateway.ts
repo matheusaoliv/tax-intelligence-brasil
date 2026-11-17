@@ -1,5 +1,6 @@
 import { BadGatewayException, Injectable } from '@nestjs/common';
 import { FiscalEngine, Prisma } from '@prisma/client';
+import { validateEngineInput } from './engine-input.schemas';
 
 export interface EngineExecutionResult {
   output: Prisma.InputJsonValue;
@@ -16,6 +17,13 @@ export class EngineGatewayError extends Error {
 @Injectable()
 export class FiscalEngineGateway {
   async execute(engine: FiscalEngine, payload: Record<string, unknown>): Promise<EngineExecutionResult> {
+    if (engine === FiscalEngine.RTC_REGIME_REGULAR || engine === FiscalEngine.RTC_SIMPLES_NACIONAL) {
+      try {
+        validateEngineInput(engine, payload);
+      } catch {
+        throw new EngineGatewayError('ENGINE_INPUT_INVALID');
+      }
+    }
     const config = this.getConfig(engine);
     const baseUrl = config.baseUrl.replace(/\/+$/, '');
     let response: Response;
