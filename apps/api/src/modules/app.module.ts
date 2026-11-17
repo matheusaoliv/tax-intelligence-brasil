@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { CalculationsModule } from './calculations/calculations.module';
 import { CompaniesModule } from './companies/companies.module';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { DocumentsModule } from './documents/documents.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
     CalculationsModule,
     CompaniesModule,
     OrganizationsModule,
+    DocumentsModule,
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
