@@ -38,6 +38,13 @@ Plataforma multiempresa para empresas e escritórios contábeis, integrando moto
 - docs/MOTION-AND-DATA-VIZ-SKILLS.md: motion, animação e visualização de dados.
 - docs/ENGINEERING-QUALITY-SKILLS.md: skills de código, testes, segurança e quality gates.
 - docs/CODEX-SETUP.md: instalação e configuração do ambiente Codex.
+- docs/IMPLEMENTATION-STATUS.md: progresso, validações pendentes e próxima sequência.
+
+## Estrutura de código
+- `apps/web`: aplicação Next.js.
+- `apps/api`: API NestJS com endpoint de saúde em `/api/v1/health`.
+- `packages/contracts`: contratos compartilhados validados com Zod.
+- `packages/database`: modelo inicial PostgreSQL/Prisma.
 
 ## Status
 Fase de fundação. Builds, testes, contratos OpenAPI, licenças e SHAs dos projetos upstream ainda precisam ser validados.
