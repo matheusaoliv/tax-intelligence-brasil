@@ -1,26 +1,46 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
-import { Throttle } from '@nestjs/throttler';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { Throttle } from '@nestjs/throttler';
 import { AuthenticatedRequest, SessionAuthGuard } from './session-auth.guard';
+
+const COOKIE_NAME = 'tib_session';
+const SESSION_MAX_AGE = 8 * 60 * 60 * 1000;
+
+function setSessionCookie(response: Response, token: string): void {
+  response.cookie(COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/api/v1',
+    maxAge: SESSION_MAX_AGE,
+  });
+}
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @HttpCode(HttpStatus.CREATED)
-  register(@Body() input: RegisterDto) {
-    return this.authService.register(input);
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  async register(@Body() input: RegisterDto, @Res({ passthrough: true }) response: Response) {
+    const result = await this.authService.register(input);
+    setSessionCookie(response, result.accessToken);
+    const { accessToken: _token, ...safeResult } = result;
+    return safeResult;
   }
 
   @Post('login')
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
-  login(@Body() input: LoginDto) {
-    return this.authService.login(input);
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  async login(@Body() input: LoginDto, @Res({ passthrough: true }) response: Response) {
+    const result = await this.authService.login(input);
+    setSessionCookie(response, result.accessToken);
+    const { accessToken: _token, ...safeResult } = result;
+    return safeResult;
   }
 
   @Get('me')
@@ -32,7 +52,16 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(SessionAuthGuard)
-  async logout(@Req() request: AuthenticatedRequest): Promise<void> {
+  async logout(
+    @Req() request: AuthenticatedRequest,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
     await this.authService.revokeSession(request.user.sessionId);
+    response.clearCookie(COOKIE_NAME, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/api/v1',
+    });
   }
 }
