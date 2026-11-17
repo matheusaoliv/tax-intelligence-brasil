@@ -67,4 +67,4 @@ Content-Type: application/json
 }
 ```
 
-O navegador recebe o cookie HttpOnly automaticamente. Não armazene token de sessão em localStorage ou sessionStorage.
+O navegador recebe o cookie HttpOnly automaticamente. Para frontend e API em sites distintos, configure `SESSION_COOKIE_SAME_SITE=none`, HTTPS e uma lista `WEB_ORIGIN` exata. Não armazene token de sessão em localStorage ou sessionStorage.
