@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { IsDateString, IsString, Matches } from 'class-validator';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { ReferenceDataGateway } from './reference-data.gateway';
@@ -27,7 +27,7 @@ export class ReferenceDataController {
 
   @Get('regime-regular/classificacoes-tributarias/cbs-ibs/class-trib/:code')
   classification(@Param('code') code: string, @Query() query: CodeAndDateQuery) {
-    if (!/^\d{6}$/.test(code)) throw new Error('Código de classificação inválido.');
+    if (!/^\d{6}$/.test(code)) throw new BadRequestException('Código de classificação inválido.');
     return this.gateway.getRegimeRegular(
       'classificacoes-tributarias/cbs-ibs/class-trib/' + code,
       { data: query.data },
