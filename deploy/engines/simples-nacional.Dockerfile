@@ -8,6 +8,7 @@ RUN ./mvnw -B clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
+RUN mkdir -p /app/calculadora/db
 COPY --from=build /src/target/api-simples-nacional.jar ./api-simples-nacional.jar
 ENV SPRING_PROFILES_ACTIVE=offline
 EXPOSE 8082 9103
