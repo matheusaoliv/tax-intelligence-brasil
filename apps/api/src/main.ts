@@ -8,6 +8,7 @@ import { AppModule } from './modules/app.module';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { cors: false, bodyParser: false });
+  app.enableShutdownHooks();
   app.use(helmet());
   app.use(express.json({ limit: process.env.JSON_BODY_LIMIT ?? '7mb' }));
   app.setGlobalPrefix('api/v1');
