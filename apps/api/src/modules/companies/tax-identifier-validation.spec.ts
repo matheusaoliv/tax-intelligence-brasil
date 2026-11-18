@@ -14,6 +14,10 @@ describe('normalizeAndValidateTaxIdentifier', () => {
     expect(normalizeAndValidateTaxIdentifier('12.ABC.345/01DE-35')).toBe('12ABC34501DE35');
   });
 
+  it('accepts the first alphanumeric CNPJ announced by Receita Federal', () => {
+    expect(normalizeAndValidateTaxIdentifier('00.000.000/E08G-12')).toBe('00000000E08G12');
+  });
+
   it('rejects invalid check digits', () => {
     expect(() => normalizeAndValidateTaxIdentifier('529.982.247-24'))
       .toThrow(UnprocessableEntityException);
