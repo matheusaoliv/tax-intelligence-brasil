@@ -15,7 +15,8 @@
 | PostgreSQL | `Postgres` / `d0f3e2e9-1a48-42ad-bde8-96aebf726d67` | sfo | SUCCESS / Online |
 | Redis | `Redis` / `dc87e155-246d-4b71-a878-f7e110e48ce7` | sfo | SUCCESS / Online |
 | Object Storage | `tax-intelligence-documents` / `7433ccb5-bc24-477e-8561-e4ac8103ff8d` | iad | Provisionado |
-| API | `tax-intelligence-api` / `91c30ed8-5e84-48b5-a311-85ad660aa2e9` | sfo | Criado, fonte ainda não conectada |
+| API | `tax-intelligence-api` / `91c30ed8-5e84-48b5-a311-85ad660aa2e9` | sfo | Criado e configurado, fonte ainda não conectada |
+| Motor RTC Regime Regular | `rtc-regime-regular` / `9d64bdd2-3f2b-4057-9ecc-ed1d05669f96` | sfo | Criado e configurado, fonte ainda não conectada |
 | Web | `tax-intelligence-web` / `db132e28-a915-46e4-b6ed-32ae134b3513` | sfo | Criado, fonte ainda não conectada |
 
 ## Domínios reservados
@@ -55,7 +56,7 @@ A documentação da Railway exige que a conta Railway esteja vinculada ao GitHub
 ## Pendências antes da homologação
 
 1. Autorizar Railway no repositório GitHub.
-2. Conectar a fonte GitHub aos serviços API e Web.
+2. Conectar a fonte GitHub aos serviços API, Web e motor RTC Regime Regular.
 3. Concluir builds e corrigir eventuais erros de compilação.
 4. Criar e conectar os três serviços de motores fiscais oficiais.
 5. Confirmar as variáveis de ambiente e conectividade interna.
