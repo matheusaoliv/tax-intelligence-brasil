@@ -20,7 +20,7 @@ describe('ReferenceDataGateway', () => {
 
     const result = await gateway.getRegimeRegular('ncm', { ncm: '22030000', data: '2027-01-01' });
 
-    const calledUrl = fetchMock.mock.calls[0][0] as URL;
+    const calledUrl = fetchMock.mock.calls[0]?.[0] as URL;
     expect(calledUrl.toString()).toBe('http://regime-engine:8080/api/calculadora/dados-abertos/ncm?ncm=22030000&data=2027-01-01');
     expect(result).toEqual({ itens: [] });
   });
