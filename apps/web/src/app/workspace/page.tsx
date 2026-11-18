@@ -8,6 +8,7 @@ type CurrentUser = { userId: string; organizationId: string; role: string };
 type Organization = { id: string; name: string; slug: string; role: string };
 type Company = { id: string; legalName: string; taxIdentifierMasked: string; createdAt: string };
 type Calculation = { id: string; engine: string; status: string; engineVersion: string; createdAt: string };
+type CalculationDetail = Calculation & { engineCommitSha: string; engineRepository: string; originalOutput: unknown; inputPayload: unknown; responseMetadata: unknown; errorCode: string | null; correlationId: string };
 type DocumentRecord = { id: string; type: string; status: string; createdAt: string };
 type MemberRecord = { role: string; createdAt: string; user: { id: string; email: string; displayName: string } };
 type AuditRecord = { id: string; action: string; resourceType: string; createdAt: string; actorUserId: string | null };
@@ -18,6 +19,7 @@ export default function WorkspacePage() {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [calculations, setCalculations] = useState<Calculation[]>([]);
+  const [selectedCalculation, setSelectedCalculation] = useState<CalculationDetail | null>(null);
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [members, setMembers] = useState<MemberRecord[]>([]);
   const [auditEvents, setAuditEvents] = useState<AuditRecord[]>([]);
@@ -116,6 +118,15 @@ export default function WorkspacePage() {
       setMessage(error instanceof Error ? error.message : 'Não foi possível executar o cálculo.');
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function viewCalculation(id: string) {
+    try {
+      const detail = await apiRequest<CalculationDetail>('/calculations/' + id);
+      setSelectedCalculation(detail);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Não foi possível abrir o resultado.');
     }
   }
 
@@ -247,10 +258,22 @@ export default function WorkspacePage() {
           )}
           <div className="record-list">
             {calculations.slice(0, 5).map((item) => (
-              <div className="record-row" key={item.id}><div><strong>{item.engine === 'RTC_REGIME_REGULAR' ? 'Regime Regular' : 'Simples Nacional'}</strong><small>Motor {item.engineVersion}</small></div><span className="status-chip">{item.status}</span></div>
+              <div className="record-row" key={item.id}><div><strong>{item.engine === 'RTC_REGIME_REGULAR' ? 'Regime Regular' : 'Simples Nacional'}</strong><small>Motor {item.engineVersion}</small></div><div className="record-actions"><span className="status-chip">{item.status}</span><button className="text-button compact" onClick={() => void viewCalculation(item.id)}>Ver resultado</button></div></div>
             ))}
             {calculations.length === 0 && <p className="empty-state">Nenhum cálculo registrado.</p>}
           </div>
+          {selectedCalculation && (
+            <div className="calculation-detail">
+              <div className="panel-heading">
+                <div><p className="eyebrow">RESPOSTA ORIGINAL DO MOTOR</p><h3>{selectedCalculation.engineVersion} · {selectedCalculation.status}</h3></div>
+                <button className="quiet-button" onClick={() => setSelectedCalculation(null)}>Fechar</button>
+              </div>
+              <p className="detail-meta">Commit: {selectedCalculation.engineCommitSha}</p>
+              {selectedCalculation.errorCode && <p className="form-error">Código: {selectedCalculation.errorCode}</p>}
+              <pre>{JSON.stringify(selectedCalculation.originalOutput, null, 2) ?? 'Sem resposta armazenada.'}</pre>
+              {selectedCalculation.responseMetadata && <details><summary>Metadados do motor</summary><pre>{JSON.stringify(selectedCalculation.responseMetadata, null, 2)}</pre></details>}
+            </div>
+          )}
         </article>
 
         <article className="workspace-panel document-panel">
