@@ -15,7 +15,6 @@ async function bootstrap(): Promise<void> {
     .setTitle('Tax Intelligence Brasil API')
     .setDescription('API multiempresa para gestão e integração de motores fiscais. Produto independente.')
     .setVersion('0.1.0')
-    .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/v1/docs', app, swaggerDocument);
