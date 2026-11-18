@@ -100,7 +100,13 @@ export class CalculationsService {
       const errorCode = error instanceof EngineGatewayError ? error.code : 'ENGINE_EXECUTION_FAILED';
       await this.prisma.fiscalCalculation.update({
         where: { id: calculation.id },
-        data: { status: 'FAILED', errorCode, completedAt: new Date() },
+        data: {
+          status: 'FAILED',
+          errorCode,
+          completedAt: new Date(),
+          ...(error instanceof EngineGatewayError && error.details ? { originalOutput: error.details } : {}),
+          ...(error instanceof EngineGatewayError && error.httpStatus ? { responseMetadata: { httpStatus: error.httpStatus } } : {}),
+        },
       });
       await this.prisma.auditEvent.create({
         data: {
