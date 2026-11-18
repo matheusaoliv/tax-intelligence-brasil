@@ -8,7 +8,11 @@ export interface EngineExecutionResult {
 }
 
 export class EngineGatewayError extends Error {
-  constructor(readonly code: string) {
+  constructor(
+    readonly code: string,
+    readonly details?: Prisma.InputJsonObject,
+    readonly httpStatus?: number,
+  ) {
     super(code);
     this.name = 'EngineGatewayError';
   }
@@ -40,7 +44,19 @@ export class FiscalEngineGateway {
     }
 
     if (!response.ok) {
-      throw new EngineGatewayError('ENGINE_REJECTED_REQUEST');
+      const errorText = await response.text();
+      let details: Prisma.InputJsonObject | undefined;
+      if (errorText.length <= 1_000_000) {
+        try {
+          const parsed: unknown = JSON.parse(errorText);
+          if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+            details = parsed as Prisma.InputJsonObject;
+          }
+        } catch {
+          // Non-JSON upstream errors are intentionally not persisted.
+        }
+      }
+      throw new EngineGatewayError('ENGINE_REJECTED_REQUEST', details, response.status);
     }
 
     const responseText = await response.text();
