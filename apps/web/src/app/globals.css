@@ -114,3 +114,11 @@ footer { display: flex; justify-content: space-between; gap: 20px; padding: 34px
   .account-area .environment { max-width: 110px; font-size: 8px; }
   .role-chip { display: none; }
 }
+
+
+.record-actions { display: flex; align-items: center; gap: 10px; }
+.calculation-detail { margin-top: 20px; padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: #09121a; }
+.calculation-detail h3 { margin: 0; font: 600 13px 'Manrope', sans-serif; }
+.detail-meta { color: var(--muted); font-size: 10px; overflow-wrap: anywhere; }
+.calculation-detail pre { max-height: 420px; overflow: auto; padding: 14px; border: 1px solid var(--border); border-radius: 8px; background: #060b10; color: #c6d7df; font: 11px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.calculation-detail summary { color: var(--accent); font-size: 11px; cursor: pointer; }
