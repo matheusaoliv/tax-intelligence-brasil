@@ -43,7 +43,14 @@ Os domínios foram criados, mas não servem a aplicação enquanto os serviços 
 
 Ao conectar `matheusaoliv/tax-intelligence-brasil` aos serviços API e Web, a Railway respondeu: `User does not have access to the repo`.
 
-É necessário autorizar a integração GitHub da Railway para acessar este repositório. No GitHub, abra Settings → Applications → Installed GitHub Apps, localize Railway e conceda acesso ao repositório `matheusaoliv/tax-intelligence-brasil`. Se Railway ainda não estiver instalada, instale a aplicação GitHub Railway e selecione este repositório. Depois disso, reconectar a fonte dos serviços API e Web à branch `main`.
+É necessário vincular a conta GitHub à conta Railway e autorizar o app para acessar este repositório.
+
+1. Na Railway, abra Account Settings → Integrations → GitHub e conecte a conta GitHub que possui `matheusaoliv/tax-intelligence-brasil`.
+2. Abra [instalação/configuração do Railway GitHub App](https://github.com/apps/railway-app/installations/new).
+3. Selecione a conta `matheusaoliv` e conceda acesso ao repositório `tax-intelligence-brasil` (ou todos os repositórios, se essa for sua preferência).
+4. Volte ao projeto Railway e atualize a lista de repositórios. Depois reconecte a fonte dos serviços API e Web à branch `main`.
+
+A documentação da Railway exige que a conta Railway esteja vinculada ao GitHub e que o app tenha acesso ao repositório. Consulte [Railway Services: Deploying from a GitHub repo](https://docs.railway.com/services#deploying-from-a-github-repo).
 
 ## Pendências antes da homologação
 
