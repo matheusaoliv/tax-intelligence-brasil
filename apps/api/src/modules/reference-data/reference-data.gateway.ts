@@ -1,4 +1,4 @@
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class ReferenceDataGateway {
@@ -29,7 +29,7 @@ export class ReferenceDataGateway {
       throw new BadGatewayException('Serviço de dados fiscais indisponível.');
     }
     if (!response.ok) {
-      if (response.status === 404) throw new BadGatewayException('Consulta não encontrada ou fora da vigência no motor oficial.');
+      if (response.status === 404) throw new NotFoundException('Consulta não encontrada ou fora da vigência no motor oficial.');
       throw new BadGatewayException('Não foi possível consultar os dados fiscais oficiais.');
     }
     return response.json();
