@@ -41,6 +41,16 @@ A senha deve ter no mínimo 12 caracteres. Login e cadastro têm limite de cinco
 - Limite padrão de XML: 5 MiB; máximo configurável: 32 MiB. Se elevar o limite acima do padrão, ajuste também `JSON_BODY_LIMIT` para comportar o XML dentro do envelope JSON. DTD e declarações de entidades são rejeitados.
 - XML original e PDF ficam em bucket privado S3 compatível, separados por organização. Configure criptografia em repouso e política de retenção no bucket.
 
+## Dados fiscais de referência
+Todas as consultas exigem sessão autenticada e são encaminhadas a endpoints fixos dos motores oficiais:
+- `GET /reference-data/regime-regular/classificacoes-tributarias/cbs-ibs/class-trib/:code?data=AAAA-MM-DD`
+- `GET /reference-data/regime-regular/fundamentacoes-legais?data=AAAA-MM-DD`
+- `GET /reference-data/regime-regular/ncm?ncm=00000000&data=AAAA-MM-DD`
+- `GET /reference-data/regime-regular/aliquota-uf?codigoUf=33&data=AAAA-MM-DD`
+- `GET /reference-data/simples-nacional/atividades?data=AAAA-MM-DD`
+
+O produto não mantém cópia independente nem altera vigências dos catálogos. Respostas e erros vêm do motor oficial.
+
 ## Auditoria
 - `GET /audit?limit=50`: histórico da organização; limite entre 1 e 100.
 - A leitura é permitida a OWNER, ADMIN e ACCOUNTANT.
