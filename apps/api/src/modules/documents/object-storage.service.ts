@@ -15,7 +15,7 @@ export class ObjectStorageService {
     this.client = new S3Client({
       region: process.env.S3_REGION ?? 'auto',
       endpoint: process.env.S3_ENDPOINT || undefined,
-      forcePathStyle: Boolean(process.env.S3_ENDPOINT),
+      forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true',
       ...credentials,
     });
   }
