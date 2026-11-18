@@ -18,8 +18,8 @@ function validateCnpj(value: string): boolean {
   const characters = value.slice(0, 12).split('').map((character) => character.charCodeAt(0) - 48);
   const firstWeights = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
   const secondWeights = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-  const first = digitFromMod11(characters.reduce((sum, digit, index) => sum + digit * firstWeights[index], 0));
-  const second = digitFromMod11(characters.concat(first).reduce((sum, digit, index) => sum + digit * secondWeights[index], 0));
+  const first = digitFromMod11(characters.reduce((sum, digit, index) => sum + digit * (firstWeights[index] ?? 0), 0));
+  const second = digitFromMod11(characters.concat(first).reduce((sum, digit, index) => sum + digit * (secondWeights[index] ?? 0), 0));
   return value[12] === String(first) && value[13] === String(second);
 }
 
