@@ -9,7 +9,7 @@ describe('FiscalEngineGateway', () => {
   municipio: 4314902,
   uf: 'RS',
   itens: [{ numero: 1, cst: '200', cClassTrib: '200003', ncm: '10063021', baseCalculo: 100 }],
-}
+};
   const gateway = new FiscalEngineGateway();
   const originalFetch = globalThis.fetch;
 
@@ -62,7 +62,7 @@ describe('FiscalEngineGateway', () => {
   it('rejects non-JSON upstream responses', async () => {
     globalThis.fetch = jest.fn().mockResolvedValue(new Response('not-json', { status: 200 }));
 
-    await expect(gateway.execute(FiscalEngine.RTC_REGIME_REGULAR, {}))
+    await expect(gateway.execute(FiscalEngine.RTC_REGIME_REGULAR, regularPayload))
       .rejects.toMatchObject({ code: 'ENGINE_INVALID_RESPONSE' });
   });
 });
