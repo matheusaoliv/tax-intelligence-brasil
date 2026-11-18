@@ -53,10 +53,17 @@ describe('FiscalEngineGateway', () => {
   });
 
   it('does not expose an upstream response body when the engine rejects a request', async () => {
-    globalThis.fetch = jest.fn().mockResolvedValue(new Response('sensitive upstream details', { status: 422 }));
+    globalThis.fetch = jest.fn().mockResolvedValue(new Response(JSON.stringify({ code: 'RTC-001', detail: 'Invalid item' }), {
+      status: 422,
+      headers: { 'content-type': 'application/problem+json' },
+    }));
 
     await expect(gateway.execute(FiscalEngine.RTC_REGIME_REGULAR, regularPayload))
-      .rejects.toBeInstanceOf(EngineGatewayError);
+      .rejects.toMatchObject({
+        code: 'ENGINE_REJECTED_REQUEST',
+        httpStatus: 422,
+        details: { code: 'RTC-001', detail: 'Invalid item' },
+      });
   });
 
   it('rejects non-JSON upstream responses', async () => {
