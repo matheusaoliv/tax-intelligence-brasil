@@ -24,8 +24,8 @@ services:
     volumes:
       - minio_data:/data
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
   minio-init:
     image: minio/mc:latest
     depends_on:
@@ -123,7 +123,7 @@ services:
       minio-init:
         condition: service_completed_successfully
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/api/v1/health/ready').then(r => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1))"]
       interval: 15s
@@ -145,7 +145,7 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1))"]
       interval: 15s
