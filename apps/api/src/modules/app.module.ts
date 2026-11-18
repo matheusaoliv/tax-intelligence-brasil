@@ -9,6 +9,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { DocumentsModule } from './documents/documents.module';
 import { AuditModule } from './audit/audit.module';
+import { ReferenceDataModule } from './reference-data/reference-data.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuditModule } from './audit/audit.module';
     OrganizationsModule,
     DocumentsModule,
     AuditModule,
+    ReferenceDataModule,
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
