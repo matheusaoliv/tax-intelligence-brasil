@@ -52,7 +52,7 @@ describe('FiscalEngineGateway', () => {
     );
   });
 
-  it('does not expose an upstream response body when the engine rejects a request', async () => {
+  it('preserves structured upstream validation errors for the tenant history', async () => {
     globalThis.fetch = jest.fn().mockResolvedValue(new Response(JSON.stringify({ code: 'RTC-001', detail: 'Invalid item' }), {
       status: 422,
       headers: { 'content-type': 'application/problem+json' },
