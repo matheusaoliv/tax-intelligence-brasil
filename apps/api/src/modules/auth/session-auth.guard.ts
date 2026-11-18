@@ -28,14 +28,10 @@ export class SessionAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const authorization = request.headers.authorization;
-    const bearerToken = authorization?.startsWith('Bearer ')
-      ? authorization.slice('Bearer '.length).trim()
-      : undefined;
     const cookieToken = readCookie(request.headers.cookie, 'tib_session');
-    const token = bearerToken ?? cookieToken;
+    const token = cookieToken;
 
-    if (cookieToken && !bearerToken && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
+    if (cookieToken && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
       const allowedOrigins = (process.env.WEB_ORIGIN ?? 'http://localhost:3000')
         .split(',').map((origin) => origin.trim());
       if (!request.headers.origin || !allowedOrigins.includes(request.headers.origin)) {
