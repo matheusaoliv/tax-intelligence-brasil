@@ -47,6 +47,8 @@ Os motores oficiais ficam em perfis separados: `docker compose --profile fiscal-
 ## Documentação
 - docs/API.md: rotas, autenticação, permissões e contratos iniciais.
 - docs/UPSTREAM-ENGINES.md: versões e contratos dos motores oficiais.
+- docs/DEPLOYMENT.md: infraestrutura e configuração de produção.
+- docs/AI-EXPLANATIONS.md: regras para explicações assistidas por IA.
 - docs/IMPLEMENTATION-STATUS.md: progresso e validações pendentes.
 - AGENTS.md: regras para agentes e contribuidores.
 - DESIGN.md: direção visual inicial.
