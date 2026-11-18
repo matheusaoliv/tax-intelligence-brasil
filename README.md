@@ -37,7 +37,7 @@ Plataforma multiempresa para empresas e escritórios contábeis, integrando moto
 - `packages/database`: modelo PostgreSQL/Prisma.
 
 ## Executar com Docker Compose
-1. Copie `.env.example` para `.env` e gere uma senha forte para `POSTGRES_PASSWORD`.
+1. Copie `.env.example` para `.env` e gere senhas fortes para `POSTGRES_PASSWORD` e `MINIO_ROOT_PASSWORD`.
 2. Configure `DATA_ENCRYPTION_KEY` com uma chave aleatória de 32 bytes codificada em Base64 antes de cadastrar dados fiscais.
 3. Execute `docker compose up --build`.
 4. A API ficará em `http://localhost:3001/api/v1` e a interface em `http://localhost:3000`.
