@@ -64,6 +64,9 @@ jobs:
       - name: Web typecheck
         run: pnpm --filter @tax-intelligence/web typecheck
 
+      - name: Lint
+        run: pnpm lint
+
       - name: API tests
         run: pnpm --filter @tax-intelligence/api test
 
