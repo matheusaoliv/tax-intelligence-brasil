@@ -9,7 +9,7 @@ Atualizado em 17/11/2026. O trabalho está sendo publicado diretamente na branch
 - [x] Interface responsiva em português.
 - [x] Cadastro, login e seleção de organização.
 - [x] Sessão de navegador em cookie HttpOnly, logout e expiração.
-- [x] Dashboard com empresas, cálculos, documentos, membros e auditoria.
+- [x] Dashboard com empresas, cálculos, documentos, membros, auditoria e visualização da resposta original do motor.
 - [x] Contratos Zod iniciais para as entradas dos motores fiscais.
 
 ### Identidade, organizações e segurança
@@ -21,7 +21,7 @@ Atualizado em 17/11/2026. O trabalho está sendo publicado diretamente na branch
 - [x] CPF e CNPJ com verificação dos dígitos, incluindo CNPJ alfanumérico.
 - [x] CPF/CNPJ cifrado com AES-256-GCM e fingerprint HMAC com chave derivada independente.
 - [x] Relações compostas no PostgreSQL para impedir associação de empresa de outro tenant a cálculo ou documento.
-- [x] Testes unitários iniciais de escopo multi-tenant, RBAC, criptografia, documentos e contratos de motores.
+- [x] Testes unitários iniciais de escopo multi-tenant, RBAC, criptografia, documentos, dados de referência, health checks e contratos de motores.
 
 ### Operação fiscal
 - [x] Histórico de cálculos com payload e resposta originais.
@@ -31,17 +31,21 @@ Atualizado em 17/11/2026. O trabalho está sendo publicado diretamente na branch
 - [x] Geração DANFSe via serviço oficial Go.
 - [x] Armazenamento S3 compatível privado para XML e PDF e URLs assinadas de curta duração.
 - [x] Histórico e trilha de auditoria por organização.
+- [x] Proxy autenticado para catálogos oficiais de classificação tributária, fundamentação legal, NCM, alíquotas estaduais e atividades do Simples Nacional.
 - [x] Dockerfiles dos três projetos upstream fixados por commit.
-- [x] Docker Compose com PostgreSQL, Redis, API, web e perfis separados dos motores.
+- [x] Docker Compose com PostgreSQL, Redis, MinIO, API, web, health checks e perfis separados dos motores.
+- [x] Endpoints de liveness e readiness com verificação real do PostgreSQL.
 
 ### Documentação
-- [x] Arquitetura, skills de engenharia, setup, API, status e inventário dos motores.
+- [x] Arquitetura, skills de engenharia, setup, API, implantação, política de segurança, IA explicativa e inventário dos motores.
+- [x] Dependabot, CodeQL e checklist de pull request configurados.
 - [x] Contratos HTTP e versões dos três repositórios oficiais documentados.
 - [x] Identidade do produto como independente, sem alegar vínculo ou endosso da Receita Federal.
 
 ## Ainda não validado
 
 - [ ] Instalação real de dependências e geração/commit do pnpm-lock.yaml.
+- [ ] Execução de lint, typecheck, build e testes após a última rodada de alterações.
 - [ ] Prisma validate, geração do client, migração SQL e compatibilidade efetiva do schema.
 - [ ] Typecheck, build, lint e execução de todos os testes.
 - [ ] Build dos três Dockerfiles upstream e verificação de execução dos serviços.
