@@ -4,7 +4,7 @@ Base local: `http://localhost:3001/api/v1`.
 
 Documentação interativa: `/api/v1/docs`.
 
-A autenticação de navegador usa cookie `tib_session` HttpOnly, SameSite=Lax e Secure em produção. Clientes de integração também podem enviar `Authorization: Bearer <token>`. Sessões expiram em oito horas e o servidor armazena apenas o hash SHA-256 do token.
+A autenticação usa cookie `tib_session` HttpOnly, SameSite configurável e Secure em produção. Sessões expiram em oito horas e o servidor armazena apenas o hash SHA-256 do token. Emissão de API keys para integrações externas ainda não está implementada.
 
 ## Autenticação
 - `POST /auth/register`: cria usuário, organização inicial e sessão.
